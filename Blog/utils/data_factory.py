@@ -15,6 +15,3 @@ class ResponseData:
             'data': data,
             'msg': msg
         }
-
-
-print(ResponseData(code=11, result=False, data={1:1}, msg='asdasdsa').SUCCESS)

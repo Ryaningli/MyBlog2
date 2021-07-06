@@ -20,5 +20,6 @@ from Blog import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', views.ManageUser.as_view()),
-    path('register/', views.Register.as_view())
+    path('register/', views.Register.as_view()),
+    path('test/', views.Test.as_view()),
 ]
