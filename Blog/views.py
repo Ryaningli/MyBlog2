@@ -1,12 +1,13 @@
 from django.shortcuts import render
 
 # Create your views here.
+from rest_framework import status
 from rest_framework.authtoken import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from Blog.models import User
 from Blog.serializer import UserSerializer, RegisterSerializer
+from Blog.utils.data_factory import ResponseData
 
 
 class ManageUser(APIView):
@@ -21,8 +22,6 @@ class Register(APIView):
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
-        print(request.data)
-        print(serializer.is_valid())
-        print(serializer.errors)
-        # User.objects.create_user(username=request.data['username'], email=request.data['email'], password=request.data['password'])
-        return Response({'msg': '处理成功'})
+        if serializer.is_valid():
+            return Response(ResponseData().SUCCESS)
+        return Response(ResponseData(msg=serializer.errors).BAD_REQUEST_PARAMETER)
