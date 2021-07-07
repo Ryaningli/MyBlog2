@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-
 from Blog.models import User, Test
 from Blog.utils.Serializer import Serializer, ModelSerializer
 

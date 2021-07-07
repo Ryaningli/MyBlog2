@@ -11,6 +11,8 @@ class Serializer(serializers.Serializer):
     @property
     def error(self):
         for field in self.errors:
+            if self[field].label in self.errors[field][0]:  # 如果字段名存在与错误信息中，则不用组合
+                return self.errors[field][0]
             return (self[field].label or field) + ': ' + self.errors[field][0]
         return None
 
