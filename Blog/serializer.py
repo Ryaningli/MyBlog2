@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from Blog.models import User, Test
+from Blog.models import User
 from Blog.utils.Serializer import Serializer, ModelSerializer
 
 
@@ -26,10 +26,10 @@ class RegisterSerializer(ModelSerializer):
         fields = ['username', 'password', 'email']
 
 
-class TestSerializer(Serializer):
-    fie = serializers.CharField(required=True, label='字段fie', min_length=4)
-    test = serializers.CharField(required=True, label='测试')
+class LoginSerializer(ModelSerializer):
+    username = serializers.CharField(required=True, label='用户名', error_messages={'required': '用户名不可为空'})
+    password = serializers.CharField(required=True, label='密码', error_messages={'required': '密码不可为空'})
 
     class Meta:
-        model = Test
-        fields = '__all__'
+        model = User
+        fields = ['username', 'password']

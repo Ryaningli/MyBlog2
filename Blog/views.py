@@ -1,18 +1,15 @@
-from django.shortcuts import render
-
-# Create your views here.
+from django.contrib import auth
 from rest_framework import status
 from rest_framework.authtoken import serializers
-# from rest_framework.response import Response
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from Blog.models import User
-from Blog.serializer import UserSerializer, RegisterSerializer, TestSerializer
-from Blog.utils.data_factory import Response
+from Blog import serializer as serializer_list
 
 
 class ManageUser(APIView):
     def get(self, request, *args, **kwargs):
-        users = UserSerializer(User.objects.all(), many=True).data
+        users = serializer_list.UserSerializer(User.objects.all(), many=True).data
         return Response(users)
 
 
@@ -22,20 +19,21 @@ class Register(APIView):
 
     @staticmethod
     def post(request):
-        serializer = RegisterSerializer(data=request.data)
+        serializer = serializer_list.RegisterSerializer(data=request.data)
         if serializer.is_valid():
             User.objects.create_user(**serializer.data)
-            return Response().SUCCESS
-        return Response(msg=serializer.error).CREATED
-        # return Response(ResponseData(msg=serializer.error).BAD_REQUEST_PARAMETER, status=status.HTTP_201_CREATED)
+            return Response(data=serializer.response())
+        return Response(data=serializer.response())
 
 
-class Test(APIView):
-    @staticmethod
-    def post(request):
-        serializer = TestSerializer(data=request.data)
-        print(serializer.is_valid())
-        # print(serializer.errors)
-        # print(serializer['fie'].label)
-        print(serializer.error)
-        return Response()
+class Login(APIView):
+    def post(self, request):
+        serializer = serializer_list.LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = auth.authenticate(**serializer.data)
+            if user:
+                auth.login(request, user)
+                return Response(data=serializer.response(msg='登录成功', data=serializer.data))
+            else:
+                return Response(data=serializer.response(msg='用户名或密码错误'))
+        return Response(data=serializer.response())

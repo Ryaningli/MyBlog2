@@ -16,10 +16,3 @@ class Blog(models.Model):
     content = models.TextField('内容')
     created_time = models.DateTimeField('创建时间')
     updated_time = models.DateTimeField('更新时间')
-
-
-class Test(models.Model):
-    fie = models.CharField(max_length=10)
-
-    class Meta:
-        db_table = 'my_name'
