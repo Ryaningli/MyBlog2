@@ -1,4 +1,6 @@
 from django.contrib import auth
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.authtoken import serializers
 from rest_framework.response import Response
@@ -27,7 +29,9 @@ class Register(APIView):
 
 
 class Login(APIView):
-    def post(self, request):
+
+    @staticmethod
+    def post(request):
         serializer = serializer_list.LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = auth.authenticate(**serializer.data)
