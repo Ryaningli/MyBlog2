@@ -1,54 +1,69 @@
-from django.conf import settings
+from datetime import datetime
 from django.contrib import auth
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from rest_framework import status
-from rest_framework.authtoken import serializers
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.serializers import jwt_payload_handler
+from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.utils import jwt_encode_handler, jwt_decode_handler
+from rest_framework_jwt.views import ObtainJSONWebToken, jwt_response_payload_handler
 from Blog.models import User
 from Blog import serializer as serializer_list
+from rest_framework import generics
+from Blog.serializer import UserSerializer
+from Blog.utils.APIResponse import APIResponse, ResponseTemplate
 
 
-class ManageUser(APIView):
-    def get(self, request, *args, **kwargs):
-        users = serializer_list.UserSerializer(User.objects.all(), many=True).data
-        return Response(users)
+class UserList(generics.ListCreateAPIView):
+    authentication_classes = [JSONWebTokenAuthentication]  # 存储到request.user，如果只配置这个，则不登陆也能访问
+    # permission_classes = [IsAuthenticated]  # 必须已经登陆，即request.user不能是匿名用户
+    permission_classes = [IsAdminUser]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class Test(APIView):
+    # authentication_classes = [JSONWebTokenAuthentication]  # 存储到request.user，如果只配置这个，则不登陆也能访问
+
+    def post(self, request):
+        print('***********' * 20)
+        # token = request.headers.get('token')
+        # user = jwt_decode_handler(token)
+        # user = request.user
+        raise PermissionDenied()
+
+        return APIResponse()
 
 
 class Register(APIView):
     def get(self, request):
-        return Response({'method': 'GET'})
+        return APIResponse({'method': 'GET'})
 
     @staticmethod
     def post(request):
         serializer = serializer_list.RegisterSerializer(data=request.data)
         if serializer.is_valid():
             User.objects.create_user(**serializer.data)
-            return Response(data=serializer.response())
-        return Response(data=serializer.response())
+            return APIResponse()
+        return APIResponse()
 
 
-class Login(APIView):
+class Login(ObtainJSONWebToken):
 
-    @staticmethod
-    def post(request):
+    def post(self, request, *args, **kwargs):
         serializer = serializer_list.LoginSerializer(data=request.data)
+
         if serializer.is_valid():
-            user = auth.authenticate(**serializer.data)
-            if user:
-                # auth.login(request, user)
-                token, created = Token.objects.update_or_create(user=user)
-                return Response(data=serializer.response(msg='登录成功', data={'Authorization': ' Token ' + token.key}))
-            else:
-                return Response(data=serializer.response(msg='用户名或密码错误'), status=status.HTTP_403_FORBIDDEN)
-        return Response(data=serializer.response())
+            user = serializer.validated_data
+            token = jwt_encode_handler(jwt_payload_handler(user))
+            response_data = jwt_response_payload_handler(token, user, request)
+            response = APIResponse(data=response_data, msg='登录成功')
+            if api_settings.JWT_AUTH_COOKIE:
+                expiration = (datetime.utcnow() +
+                              api_settings.JWT_EXPIRATION_DELTA)
+                response.set_cookie(api_settings.JWT_AUTH_COOKIE, token, expires=expiration, httponly=True)
+            return response
 
-
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        Token.objects.create(user=instance)
+        return APIResponse(serializer=serializer, status=status.HTTP_403_FORBIDDEN)

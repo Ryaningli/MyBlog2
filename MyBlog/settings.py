@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import datetime
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
     'Blog',
 ]
 
@@ -133,3 +132,22 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'Blog.User'
+
+DJANGO_SETTINGS_MODULE = 'multiDatabase.settings'
+
+JWT_AUTH = {
+    # 配置过期时间
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    # 配置请求头中携带token的前缀
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+}
+
+REST_FRAMEWORK = {
+    # 用户认证类
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 优先使用 JWT 的方式认证用户
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
