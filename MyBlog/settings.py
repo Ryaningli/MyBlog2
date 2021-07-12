@@ -137,7 +137,7 @@ DJANGO_SETTINGS_MODULE = 'multiDatabase.settings'
 
 JWT_AUTH = {
     # 配置过期时间
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30),
     # 配置请求头中携带token的前缀
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
@@ -150,4 +150,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
+    'EXCEPTION_HANDLER': 'Blog.utils.custom_exception_handler.custom_exception_handler'
 }

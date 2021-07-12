@@ -1,19 +1,17 @@
 from datetime import datetime
-from django.contrib import auth
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.serializers import jwt_payload_handler
 from rest_framework_jwt.settings import api_settings
-from rest_framework_jwt.utils import jwt_encode_handler, jwt_decode_handler
+from rest_framework_jwt.utils import jwt_encode_handler
 from rest_framework_jwt.views import ObtainJSONWebToken, jwt_response_payload_handler
 from Blog.models import User
 from Blog import serializer as serializer_list
 from rest_framework import generics
 from Blog.serializer import UserSerializer
-from Blog.utils.APIResponse import APIResponse, ResponseTemplate
+from Blog.utils.APIResponse import APIResponse
 
 
 class UserList(generics.ListCreateAPIView):
@@ -25,14 +23,14 @@ class UserList(generics.ListCreateAPIView):
 
 
 class Test(APIView):
-    # authentication_classes = [JSONWebTokenAuthentication]  # 存储到request.user，如果只配置这个，则不登陆也能访问
+    authentication_classes = [JSONWebTokenAuthentication]  # 存储到request.user，如果只配置这个，则不登陆也能访问
 
     def post(self, request):
         print('***********' * 20)
         # token = request.headers.get('token')
         # user = jwt_decode_handler(token)
-        # user = request.user
-        raise PermissionDenied()
+        user = request.user
+        print(user)
 
         return APIResponse()
 
@@ -66,4 +64,4 @@ class Login(ObtainJSONWebToken):
                 response.set_cookie(api_settings.JWT_AUTH_COOKIE, token, expires=expiration, httponly=True)
             return response
 
-        return APIResponse(serializer=serializer, status=status.HTTP_403_FORBIDDEN)
+        return APIResponse(serializer=serializer, status=status.HTTP_401_UNAUTHORIZED)
