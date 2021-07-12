@@ -57,49 +57,6 @@ class UserCreated(APIException):
     default_code = 11111
 
 
-def get_data_by_order(*args):
-    """
-    :param args:
-    :return: 根据传参的顺序，返回非None的第一个
-    """
-    result = None
-    for arg in args:
-        if arg is not None:
-            result = arg
-            break
-    return result
-
-
-class BaseAPIExceptions(APIException):
-    status_code = stat.HTTP_501_NOT_IMPLEMENTED
-    default_detail = '未定义错误'
-    default_code = 'custom_error'
-
-    def __init__(self, serializer=None, code=None, result=None, msg=None, data=None, status=None, **kwargs):
-        if serializer is not None:
-            if not serializer.is_valid():
-                em_order = list(OrderedDict(serializer.errors).items())[0]
-                field, error = em_order[0], em_order[1][0]
-                try:
-                    ser_msg = (serializer[field].label or field) + ': ' + error \
-                        if serializer[field].label not in error else error
-                except KeyError:
-                    ser_msg = error
-            else:
-                ser_msg = '序列化验证有效'
-        else:
-            ser_msg = None
-
-        self.response = {
-            'code': get_data_by_order(code, 20001),
-            'result': get_data_by_order(result, False),
-            'msg': get_data_by_order(msg, ser_msg, '未知错误'),
-            'data': get_data_by_order(data, {})
-        }
-        self.response['data'].update(**kwargs)
-        self.status_code = get_data_by_order(status, stat.HTTP_501_NOT_IMPLEMENTED)
-
-        self.default_detail = self.response
-
-        super(BaseAPIExceptions, self).__init__(detail=self.response)
-
+class BadParameter(APIException):
+    status_code = stat.HTTP_500_INTERNAL_SERVER_ERROR
+    default_code = 401
