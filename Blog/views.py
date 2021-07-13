@@ -2,7 +2,6 @@ from datetime import datetime
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.serializers import jwt_payload_handler
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.utils import jwt_encode_handler
@@ -12,12 +11,13 @@ from Blog import serializer as serializer_list
 from rest_framework import generics
 from Blog.serializer import UserSerializer
 from Blog.utils.APIResponse import APIResponse
+from Blog.utils.custom_authentication import JSONWebTokenAuthentication
 
 
 class UserList(generics.ListCreateAPIView):
     authentication_classes = [JSONWebTokenAuthentication]  # 存储到request.user，如果只配置这个，则不登陆也能访问
     # permission_classes = [IsAuthenticated]  # 必须已经登陆，即request.user不能是匿名用户
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

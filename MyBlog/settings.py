@@ -137,7 +137,7 @@ DJANGO_SETTINGS_MODULE = 'multiDatabase.settings'
 
 JWT_AUTH = {
     # 配置过期时间
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
     # 配置请求头中携带token的前缀
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
