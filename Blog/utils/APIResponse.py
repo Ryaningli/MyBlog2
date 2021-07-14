@@ -34,7 +34,9 @@ class APIResponse(Response):
                 except KeyError:
                     ser_msg = error
 
-                ser_data = serializer.errors
+                # 将序列化器的错误信息添加至data
+                # ser_data = serializer.errors
+                ser_data = None
             else:
                 ser_code = 0
                 ser_result = True
