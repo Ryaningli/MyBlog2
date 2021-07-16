@@ -75,9 +75,12 @@ class IsAdminUser(BasePermission):
     """
     Allows access only to admin users.
     """
-
     def has_permission(self, request, view):
         if bool(request.user and request.user.is_staff):
             return True
         else:
-            raise BadParameter
+            raise Forbidden
+
+
+if __name__ == '__main__':
+    IsAdminUser()

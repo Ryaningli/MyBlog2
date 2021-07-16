@@ -152,3 +152,5 @@ REST_FRAMEWORK = {
     ),
     'EXCEPTION_HANDLER': 'Blog.utils.custom_exception_handler.custom_exception_handler'
 }
+
+# APPEND_SLASH = False

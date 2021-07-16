@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from Blog.models import User
+from Blog.models import User, Blog
 from django.contrib import auth
 
 
@@ -40,3 +40,12 @@ class LoginSerializer(serializers.ModelSerializer):
             return user
         else:
             raise serializers.ValidationError('用户名或密码错误！')
+
+
+class BlogsSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(required=True, label='标题', max_length=100)
+    content = serializers.CharField(required=True, label='内容')
+
+    class Meta:
+        model = Blog
+        fields = '__all__'
