@@ -66,7 +66,8 @@ class APIResponse(Response):
             'data': get_data_by_order(data, tem_data, ser_data, {})
         }
 
-        response_json['data'].update(**kwargs)
+        if isinstance(response_json['data'], dict):
+            response_json['data'].update(**kwargs)
 
         super(APIResponse, self).__init__(data=response_json, status=status, headers=headers, exception=exception,
                                           content_type=content_type)

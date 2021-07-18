@@ -1,6 +1,8 @@
 from datetime import datetime
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework_jwt.serializers import jwt_payload_handler
 from rest_framework_jwt.settings import api_settings
@@ -80,6 +82,12 @@ def login(request):
     raise custom_exceptions.AuthenticationFailed(serializer=serializer)
 
 
-class Blogs(generics.ListCreateAPIView):
-    queryset = Blog.objects.all()
-    serializer_class = serializer_list.BlogsSerializer
+class ManageBlogs(APIView):
+    authentication_classes = [JSONWebTokenAuthentication]  # 存储到request.user，如果只配置这个，则不登陆也能访问
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        serializer = serializer_list.ManageBlogsSerializer(Blog.objects.all(), many=True)
+        return APIResponse(list=serializer.data)
+
+PageNumberPagination

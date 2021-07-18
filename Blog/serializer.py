@@ -42,10 +42,7 @@ class LoginSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('用户名或密码错误！')
 
 
-class BlogsSerializer(serializers.ModelSerializer):
+class ManageBlogsSerializer(serializers.Serializer):
     title = serializers.CharField(required=True, label='标题', max_length=100)
     content = serializers.CharField(required=True, label='内容')
-
-    class Meta:
-        model = Blog
-        fields = '__all__'
+    type = serializers.IntegerField(required=True, label='文章类型')
