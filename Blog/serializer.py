@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from Blog.models import User, Blog
@@ -42,7 +43,26 @@ class LoginSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('用户名或密码错误！')
 
 
-class ManageBlogsSerializer(serializers.Serializer):
+class ManageBlogsSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(label='id', read_only=True)
     title = serializers.CharField(required=True, label='标题', max_length=100)
     content = serializers.CharField(required=True, label='内容')
     type = serializers.IntegerField(required=True, label='文章类型')
+    created_time = serializers.DateTimeField(label='创建时间', read_only=True, format='%Y-%m-%d %H:%M:%S')
+    updated_time = serializers.DateTimeField(label='更新时间', read_only=True, format='%Y-%m-%d %H:%M:%S')
+
+    class Meta:
+        model = Blog
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return Blog.objects.create(**validated_data, created_time=timezone.now(), user_id=user.id)
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.content = validated_data.get('content', instance.content)
+        instance.type = validated_data.get('type', instance.type)
+        instance.updated_time = timezone.now()
+        instance.save()
+        return instance

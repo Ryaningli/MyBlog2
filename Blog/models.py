@@ -16,7 +16,7 @@ class Blog(models.Model):
     content = models.TextField('内容')
     type = models.SmallIntegerField('文章类型', null=True)
     created_time = models.DateTimeField('创建时间')
-    updated_time = models.DateTimeField('更新时间')
+    updated_time = models.DateTimeField('更新时间', blank=True, null=True)
 
 
 class Comment(models.Model):
