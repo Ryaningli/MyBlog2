@@ -46,7 +46,7 @@ class LoginSerializer(serializers.ModelSerializer):
 class ManageBlogsSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(label='id', read_only=True)
     title = serializers.CharField(required=True, label='标题', max_length=100)
-    content = serializers.CharField(required=True, label='内容')
+    content = serializers.CharField(required=True, write_only=True, label='内容')     # write_only, 获取列表时不给文章内容，节省空间
     type = serializers.IntegerField(required=True, label='文章类型')
     created_time = serializers.DateTimeField(label='创建时间', read_only=True, format='%Y-%m-%d %H:%M:%S')
     updated_time = serializers.DateTimeField(label='更新时间', read_only=True, format='%Y-%m-%d %H:%M:%S')
@@ -66,3 +66,9 @@ class ManageBlogsSerializer(serializers.ModelSerializer):
         instance.updated_time = timezone.now()
         instance.save()
         return instance
+
+
+class BLogDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blog
+        fields = '__all__'

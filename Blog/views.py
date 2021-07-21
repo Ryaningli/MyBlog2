@@ -1,8 +1,8 @@
 from datetime import datetime
-from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
-from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ModelViewSet
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.serializers import jwt_payload_handler
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.utils import jwt_encode_handler
@@ -13,8 +13,6 @@ from rest_framework import generics
 from Blog.serializer import UserSerializer
 from Blog.utils import custom_exceptions
 from Blog.utils.APIResponse import APIResponse
-from Blog.utils.custom_authentication import JSONWebTokenAuthentication
-from Blog.utils.custom_exceptions import IsAdminUser
 
 
 class UserList(generics.ListCreateAPIView):
@@ -70,8 +68,19 @@ def login(request):
 
 class ManageBlogs(ModelViewSet):
     authentication_classes = [JSONWebTokenAuthentication]  # 存储到request.user，如果只配置这个，则不登陆也能访问
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
     queryset = Blog.objects.all()
-    serializer_class = serializer_list.ManageBlogsSerializer
+    # serializer_class = serializer_list.ManageBlogsSerializer
 
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return serializer_list.BLogDetailSerializer
+        else:
+            return serializer_list.ManageBlogsSerializer
+
+    def get_permissions(self):
+        if self.action in ['retrieve', 'list']:
+            return []
+        else:
+            return [IsAdminUser()]  # 自定义权限时，注意需要加括号
 
