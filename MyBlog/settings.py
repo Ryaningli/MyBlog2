@@ -13,6 +13,7 @@ import datetime
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -38,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'Blog',
+    'Application.User',
+    'Application.Blog'
 ]
 
 MIDDLEWARE = [
@@ -133,7 +135,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'Blog.User'
+AUTH_USER_MODEL = 'User.User'
 
 DJANGO_SETTINGS_MODULE = 'multiDatabase.settings'
 
@@ -152,9 +154,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
-    'EXCEPTION_HANDLER': 'Blog.utils.custom_exception_handler.custom_exception_handler',
+    'EXCEPTION_HANDLER': 'Application.utils.custom_exception_handler.custom_exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
+    # 'DEFAULT_RENDERER_CLASSES': ['Application.utils.renderer_response.CustomRenderer']
 }
+
+# 重写ModelBackend，authentication不校验用户是否被禁用
+AUTHENTICATION_BACKENDS = ['Application.utils.model_backend_authenticate.CustomModelBackend']
 
 # APPEND_SLASH = False
