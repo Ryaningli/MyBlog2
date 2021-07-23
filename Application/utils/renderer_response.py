@@ -9,20 +9,25 @@ class CustomRenderer(JSONRenderer):
         :param renderer_context:  渲染呈现的内容
         """
         # 如果有请求数据过来：类似之前的if request.method == "POST"
-
         if renderer_context:
             # 判断返回的数据是否为字典
-            if isinstance(data, dict):
-                msg = data.pop("msg", "请求成功")  # 如果是字典，获取字典当中的msg键的值;若没有这个键，则给出一个回应
-                code = data.pop("code", 0)  # 如果是字典，获取字典当中的code键的值;若没有这个键，则给出一个回应
-            else:   # 非字典类型
-                msg = "请求成功"
+            if isinstance(data, dict) and all(map(lambda x: x in data, ['code', 'result', 'msg', 'data'])):
+                code = data.pop('code', 0)
+                result = data.pop('result', True)
+                msg = data.pop('msg', '请求成功')
+                rp_data = data.pop('data', {})
+            else:
                 code = 0
+                result = True
+                msg = '请求成功'
+                rp_data = data
+
             # 重新构建返回数据的格式
             ret = {
-                "msg": msg,
-                "code": code,
-                "data": data
+                'code': code,
+                'result': result,
+                'msg': msg,
+                'data': rp_data
             }
             # 根据父类方式返回数据格式
             return super().render(ret, accepted_media_type, renderer_context)

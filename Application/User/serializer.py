@@ -1,14 +1,14 @@
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from rest_framework_jwt.serializers import jwt_payload_handler
 from rest_framework_jwt.utils import jwt_encode_handler
-
 from Application.User.models import User
-from Application.utils.custom_base_serializer import Serializer
+from Application.utils import custom_serializer
 
 
-class LoginSerializer(Serializer):
+class LoginSerializer(custom_serializer.Serializer):
 
     username = serializers.CharField(required=True, label='用户名', error_messages={'required': '用户名不可为空'})
     password = serializers.CharField(required=True, label='密码', error_messages={'required': '密码不可为空'})
@@ -39,8 +39,21 @@ class LoginSerializer(Serializer):
                 raise serializers.ValidationError(msg)
 
 
-class TestSerializer(Serializer):
-    test = serializers.CharField(required=True, error_messages={'required': 'test不可为空'})
+class RegisterSerializer(custom_serializer.ModelSerializer):
+    username = serializers.CharField(required=True, label='用户名', min_length=4, max_length=20,
+                                     validators=[UniqueValidator(queryset=User.objects.all(), message='用户名已存在')],
+                                     error_messages={'required': '用户名不可为空'})
+    password = serializers.CharField(required=True, label='密码', min_length=6, max_length=18,
+                                     error_messages={'required': '密码不可为空'})
+    email = serializers.EmailField(required=True, label='邮箱')
+    date_joined = serializers.DateTimeField(read_only=True, format='%Y-%m-%d %H:%M:%S')
 
-    def validate(self, attrs):
-        return {'t1': attrs.get('test'), 't2': 2}
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email', 'date_joined']
+
+    def create(self, validated_data):
+        validated_data['date_joined'] = timezone.now()
+        user = User.objects.create_user(**validated_data)
+        return validated_data
+

@@ -1,12 +1,12 @@
 from django.shortcuts import render
 
-# Create your views here.
 from django.utils import timezone
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Application.User.serializer import LoginSerializer, TestSerializer
+from Application.User.models import User
+from Application.User.serializer import LoginSerializer, RegisterSerializer
+from Application.utils.resopne_data import ResponseData
 
 
 class Login(APIView):
@@ -17,15 +17,15 @@ class Login(APIView):
         data = serializer.validated_data
         user = serializer.validated_data['user']
         data['user'] = user.username
-        return Response(data=data)
+        return Response(data=ResponseData(data=data, msg='登录成功'))
 
 
-class Test(APIView):
+class Register(APIView):
 
-    def post(self, request):
-        serializer = TestSerializer(data=request.data)
-        result = serializer.is_valid(raise_exception=True)
-        print(result)
-        data = serializer.validated_data
-        print(type(data))
-        return Response(data={'data': '测试'})
+    def post(self, request, *args, **kwargs):
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid()
+        user = serializer.create(serializer.data)
+        if user:
+            return Response(ResponseData(msg='注册成功', data=user,
+                                         date_joined=User.objects.get(username=user['username']).date_joined))

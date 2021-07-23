@@ -31,10 +31,24 @@ def custom_exception_handler(exc, context):
         if getattr(exc, 'wait', None):
             headers['Retry-After'] = '%d' % exc.wait
 
-        if isinstance(exc.detail, (list, dict)):
-            data = exc.detail
+        # if isinstance(exc.detail, (list, dict)):
+        #     data = exc.detail
+        # else:
+        #     data = {'detail': exc.detail}
+        data = {}
+        if isinstance(exc, exceptions.APIException):
+            if isinstance(exc.detail, (list, dict)):
+                data['code'] = exc.status_code
+                data['result'] = False
+                data['msg'] = '请求异常'
+                data['data'] = exc.detail
+            else:
+                data['code'] = exc.status_code
+                data['result'] = False
+                data['msg'] = exc.detail
+                data['data'] = {}
         else:
-            data = {'detail': exc.detail}
+            data = exc.detail
 
         set_rollback()
         return Response(data, status=exc.status_code, headers=headers)

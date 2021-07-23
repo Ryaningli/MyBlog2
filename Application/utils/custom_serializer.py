@@ -1,10 +1,14 @@
 from rest_framework.exceptions import ValidationError
-from rest_framework.serializers import BaseSerializer, SerializerMetaclass, Serializer as Ser
+from rest_framework.serializers import BaseSerializer, SerializerMetaclass, Serializer as Ser, ModelSerializer as Mod
 
 from Application.utils.custom_exceptions import BadRequest
 
 
 class CustomBaseSerializer(BaseSerializer):
+    """
+    默认抛起错误
+    自动组合错误信息
+    """
 
     def is_valid(self, raise_exception=True):
         assert hasattr(self, 'initial_data'), (
@@ -28,4 +32,8 @@ class CustomBaseSerializer(BaseSerializer):
 
 
 class Serializer(CustomBaseSerializer, Ser, metaclass=SerializerMetaclass):
+    ...
+
+
+class ModelSerializer(CustomBaseSerializer, Mod, metaclass=SerializerMetaclass):
     ...

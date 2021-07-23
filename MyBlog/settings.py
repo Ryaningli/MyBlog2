@@ -157,7 +157,10 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'Application.utils.custom_exception_handler.custom_exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
-    # 'DEFAULT_RENDERER_CLASSES': ['Application.utils.renderer_response.CustomRenderer']
+    'DEFAULT_RENDERER_CLASSES': [
+        'Application.utils.renderer_response.CustomRenderer',  # 自定义渲染器，将接口返回格式规范
+        'rest_framework.renderers.BrowsableAPIRenderer'
+    ]
 }
 
 # 重写ModelBackend，authentication不校验用户是否被禁用

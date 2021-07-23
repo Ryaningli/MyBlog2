@@ -16,15 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from Application.User.views import Login, Test
+from Application.User.views import Login, Register
 from Application.utils.custom_jwt import custom_obtain_jwt_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('api/', include('Blog.urls')),
-    # path('api/users/', include('Application.User.urls')),
-    # path('api/blogs/', include('Application.Blog.urls')),
-    path('api/login/', Login.as_view()),
-    path('api/test/', Test.as_view())
+    path('api/', include('Application.urls'))
 
 ]
