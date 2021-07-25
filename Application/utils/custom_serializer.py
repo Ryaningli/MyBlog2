@@ -1,7 +1,8 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import BaseSerializer, SerializerMetaclass, Serializer as Ser, ModelSerializer as Mod
-
+from django.db import models
 from Application.utils.custom_exceptions import BadRequest
+from Application.utils.custom_serializer_fields import StandardDateTimeField
 
 
 class CustomBaseSerializer(BaseSerializer):
@@ -36,4 +37,5 @@ class Serializer(CustomBaseSerializer, Ser, metaclass=SerializerMetaclass):
 
 
 class ModelSerializer(CustomBaseSerializer, Mod, metaclass=SerializerMetaclass):
-    ...
+    serializer_field_mapping = Mod.serializer_field_mapping
+    serializer_field_mapping[models.DateTimeField] = StandardDateTimeField      # 将数据库的datetime字段默认格式化为标准时间显示

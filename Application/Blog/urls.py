@@ -7,5 +7,4 @@ urlpatterns = [
 router = DefaultRouter()
 router.register('', views.Blogs)
 
-print(router.urls)
 urlpatterns += router.urls
