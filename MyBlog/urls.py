@@ -16,8 +16,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from Application.User.views import Login, Register
-from Application.utils.custom_jwt import custom_obtain_jwt_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
