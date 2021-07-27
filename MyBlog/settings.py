@@ -141,7 +141,7 @@ DJANGO_SETTINGS_MODULE = 'multiDatabase.settings'
 
 JWT_AUTH = {
     # 配置过期时间
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
     # 配置请求头中携带token的前缀
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
@@ -156,7 +156,7 @@ REST_FRAMEWORK = {
     ),
     'EXCEPTION_HANDLER': 'Application.utils.custom_exception_handler.custom_exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100,
+    'PAGE_SIZE': 10,
     'DEFAULT_RENDERER_CLASSES': [
         'Application.utils.renderer_response.CustomRenderer',  # 自定义渲染器，将接口返回格式规范
         'rest_framework.renderers.BrowsableAPIRenderer'

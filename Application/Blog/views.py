@@ -1,8 +1,8 @@
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from Application.Blog.models import Blog
 from Application.Blog.serializer import BlogsSerializer, BlogsListSerializer
+from Application.utils.custom_authentication import JSONWebTokenAuthentication
 
 
 class Blogs(ModelViewSet):

@@ -4,11 +4,8 @@ from django.utils.encoding import smart_text
 from rest_framework.authentication import (
     BaseAuthentication, get_authorization_header
 )
-
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_jwt.settings import api_settings
-
-from Blog.utils import custom_exceptions
-
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
@@ -31,13 +28,13 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
             payload = jwt_decode_handler(jwt_value)
         except jwt.ExpiredSignature:
             msg = 'token过期，请重新登录'
-            raise custom_exceptions.AuthenticationFailed(msg)
+            raise AuthenticationFailed(msg)
         except jwt.DecodeError:
             msg = '解析签名失败，请检查token'
-            raise custom_exceptions.AuthenticationFailed(msg)
+            raise AuthenticationFailed(msg)
         except jwt.InvalidTokenError:
             msg = '不正确的身份认证信息'
-            raise custom_exceptions.AuthenticationFailed(msg)
+            raise AuthenticationFailed(msg)
 
         user = self.authenticate_credentials(payload)
 
@@ -52,17 +49,17 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
 
         if not username:
             msg = '用户加载失败'
-            raise custom_exceptions.AuthenticationFailed(msg)
+            raise AuthenticationFailed(msg)
 
         try:
             user = User.objects.get_by_natural_key(username)
         except User.DoesNotExist:
             msg = 'token签名无效'
-            raise custom_exceptions.AuthenticationFailed(msg)
+            raise AuthenticationFailed(msg)
 
         if not user.is_active:
             msg = '用户被禁用'
-            raise custom_exceptions.AuthenticationFailed(msg)
+            raise AuthenticationFailed(msg)
 
         return user
 
@@ -91,10 +88,10 @@ class JSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
 
         if len(auth) == 1:
             msg = '错误token，未提供凭证'
-            raise custom_exceptions.AuthenticationFailed(msg)
+            raise AuthenticationFailed(msg)
         elif len(auth) > 2:
             msg = '错误token，凭据字符串不应包含空格'
-            raise custom_exceptions.AuthenticationFailed(msg)
+            raise AuthenticationFailed(msg)
 
         return auth[1]
 

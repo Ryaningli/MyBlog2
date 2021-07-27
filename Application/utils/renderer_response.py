@@ -20,7 +20,7 @@ class CustomRenderer(JSONRenderer):
                 code = 0
                 result = True
                 msg = '请求成功'
-                rp_data = data
+                rp_data = data if data is not None else {}
 
             # 重新构建返回数据的格式
             ret = {
