@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'Application.User',
     'Application.Blog'
 ]
@@ -155,12 +156,16 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
     'EXCEPTION_HANDLER': 'Application.utils.custom_exception_handler.custom_exception_handler',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_RENDERER_CLASSES': [
         'Application.utils.renderer_response.CustomRenderer',  # 自定义渲染器，将接口返回格式规范
         'rest_framework.renderers.BrowsableAPIRenderer'
-    ]
+    ],
+    # 默认过滤器类
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 # 重写ModelBackend，authentication不校验用户是否被禁用
