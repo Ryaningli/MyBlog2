@@ -6,6 +6,9 @@ UserModel = get_user_model()
 
 
 class CustomModelBackend(ModelBackend):
+    """
+    重写ModelBackend，用户密码正确，但被禁用的情况下，改为返回True，原为False
+    """
     def authenticate(self, request, username=None, password=None, **kwargs):
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)

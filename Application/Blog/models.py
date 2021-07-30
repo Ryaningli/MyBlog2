@@ -16,10 +16,19 @@ class Blog(models.Model):
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    blog = models.ForeignKey(Blog, on_delete=models.DO_NOTHING)
-    reply = models.ForeignKey('self', on_delete=models.DO_NOTHING, blank=True, default=None)
+    blog = models.ForeignKey(Blog, on_delete=models.SET_NULL, blank=True, null=True)
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, default=None, null=True)
     content = models.CharField('评论内容', max_length=255)
-    created_time = models.DateTimeField('评论时间').auto_now
+    created_time = models.DateTimeField('评论时间')
 
     class Meta:
         db_table = 'comment'
+
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    blog = models.ForeignKey(Blog, on_delete=models.SET_NULL, blank=True, null=True)
+    created_time = models.DateTimeField('点赞时间')
+
+    class Meta:
+        db_table = 'like'

@@ -150,13 +150,15 @@ JWT_AUTH = {
 REST_FRAMEWORK = {
     # 用户认证类
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'Application.utils.custom_authentication.JSONWebTokenAuthentication',  # 自定义全局JWT认证方式
         # 优先使用 JWT 的方式认证用户
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
     'EXCEPTION_HANDLER': 'Application.utils.custom_exception_handler.custom_exception_handler',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'Application.utils.custom_pagination.CustomPageNumberPagination',   # 自定义分页器
     'PAGE_SIZE': 10,
     'DEFAULT_RENDERER_CLASSES': [
         'Application.utils.renderer_response.CustomRenderer',  # 自定义渲染器，将接口返回格式规范
@@ -172,3 +174,5 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = ['Application.utils.model_backend_authenticate.CustomModelBackend']
 
 # APPEND_SLASH = False
+
+ERRORS_TO_DATA = True    # 当序列化器验证错误时，是否将所有的errors放入response的data

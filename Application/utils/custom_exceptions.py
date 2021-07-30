@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from rest_framework import status as stat
-from rest_framework.permissions import BasePermission
+from MyBlog import settings
 
 
 class APIException(Exception):
@@ -36,8 +36,11 @@ class APIException(Exception):
         if msg is None:
             msg = ser_msg or self.default_msg
         if data is None:
-            # data = self.default_data
-            data = self.default_data or serializer.errors  # 将所有验证的错误信息放入data
+            # 根据配置将所有验证的错误信息放入data
+            if settings.ERRORS_TO_DATA:
+                data = self.default_data or serializer.errors
+            else:
+                data = self.default_data
         if status is not None:
             self.status_code = status
 
