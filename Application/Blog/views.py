@@ -1,10 +1,10 @@
 from rest_framework import filters, mixins
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from Application.Blog.filters import BlogsFilter, CommentFilter
 from Application.Blog.models import Blog, Comment
-from Application.Blog.serializer import BlogsSerializer, BlogsListSerializer, CommentSerializer
+from Application.Blog.serializer import BlogsSerializer, BlogsListSerializer, CommentSerializer, CommentListSerializer
 from Application.utils.custom_permissions import IsOwner
 
 
@@ -34,6 +34,7 @@ class Blogs(ModelViewSet):
 
 class Comments(mixins.CreateModelMixin,
                mixins.DestroyModelMixin,
+               mixins.RetrieveModelMixin,
                mixins.ListModelMixin,
                GenericViewSet):
     """
@@ -41,11 +42,21 @@ class Comments(mixins.CreateModelMixin,
     删除评论: DELETE api/blog/comment/{id}/
     """
     queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+    # serializer_class = CommentSerializer
     filter_class = CommentFilter
 
     def get_permissions(self):
-        if self.action == 'list':
+        if self.action in ['list', 'retrieve']:
             return []
         else:
             return [IsAuthenticated(), IsOwner()]
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return CommentListSerializer
+        else:
+            return CommentSerializer
+
+    def retrieve(self, *args, **kwargs):
+        data = CommentListSerializer(Comment.objects.filter(blog_id=kwargs['pk']), many=True)
+        return Response(data=data.data)

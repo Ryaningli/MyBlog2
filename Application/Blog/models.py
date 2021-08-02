@@ -15,11 +15,14 @@ class Blog(models.Model):
 
 
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    blog = models.ForeignKey(Blog, on_delete=models.SET_NULL, blank=True, null=True)
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, default=None, null=True)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
     content = models.CharField('评论内容', max_length=255)
+    blog = models.ForeignKey(Blog, on_delete=models.DO_NOTHING, null=True)
+    lv1_comment = models.ForeignKey('self', on_delete=models.PROTECT, default=None, null=True, related_name='所属一级评论')
+    parent = models.ForeignKey('self', on_delete=models.PROTECT, default=None, null=True, related_name='父评论')
+    level = models.SmallIntegerField('评论等级', default=1)
     created_time = models.DateTimeField('评论时间')
+    state = models.SmallIntegerField('状态', default=1)
 
     class Meta:
         db_table = 'comment'
