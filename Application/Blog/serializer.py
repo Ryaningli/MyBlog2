@@ -2,7 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from Application.Blog.models import Blog, Comment
 from Application.User.models import User
-from Application.utils.custom_serializer import ModelSerializer, Serializer
+from Application.utils.custom_serializer import ModelSerializer
 from Application.utils.custom_serializer_fields import StandardDateTimeField
 
 
@@ -82,10 +82,12 @@ class CommentSerializer(ModelSerializer):
         else:
             raise serializers.ValidationError('评论等级参数错误')
         validated_data['content'] = attrs.get('content')
+        validated_data['level'] = attrs.get('level')
         return validated_data
 
 
 class CommentListSerializer(ModelSerializer):
+
     class Meta:
         model = Comment
         fields = '__all__'

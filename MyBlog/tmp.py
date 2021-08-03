@@ -1,4 +1,10 @@
-a = {'a': 1}
-a.pop('b', None)
+class A:
+    def a(self):
+        print('aaaaa')
 
-print(a)
+class B(A):
+    def a(self):
+        print('bbbbbbbb')
+        super(B, self).a()
+
+B().a()
