@@ -5,6 +5,6 @@ urlpatterns = [
 ]
 
 router = DefaultRouter()
-router.register('b', views.Blogs)
+router.register('blog', views.Blogs)
 router.register('comment', views.Comments)
 urlpatterns += router.urls
