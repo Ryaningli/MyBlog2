@@ -46,7 +46,6 @@ class RegisterSerializer(custom_serializer.ModelSerializer):
     password = serializers.CharField(required=True, label='密码', min_length=6, max_length=18,
                                      error_messages={'required': '密码不可为空'})
     email = serializers.EmailField(required=True, label='邮箱')
-    # date_joined = serializers.DateTimeField(read_only=True, format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
         model = User
@@ -57,3 +56,15 @@ class RegisterSerializer(custom_serializer.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return validated_data
 
+
+class UserInfoDetailSerializer(custom_serializer.ModelSerializer):
+
+    password = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    @staticmethod
+    def get_password(obj):
+        return '******'

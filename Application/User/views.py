@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Application.User.models import User
-from Application.User.serializer import LoginSerializer, RegisterSerializer
+from Application.User.serializer import LoginSerializer, RegisterSerializer, UserInfoDetailSerializer
 from Application.utils.resopne_data import ResponseData
 
 
@@ -27,5 +27,7 @@ class Register(APIView):
         serializer.is_valid()
         user = serializer.create(serializer.data)
         if user:
-            return Response(ResponseData(msg='注册成功', data=user,
-                                         date_joined=User.objects.get(username=user['username']).date_joined))
+            # return Response(ResponseData(msg='注册成功', data=user,
+            #                              date_joined=User.objects.get(username=user['username']).date_joined))
+            return Response(ResponseData(msg='注册成功', data=UserInfoDetailSerializer(
+                instance=User.objects.get(username=user['username'])).data))

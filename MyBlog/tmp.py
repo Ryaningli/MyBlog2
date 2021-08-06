@@ -1,10 +1,9 @@
-class A:
-    def a(self):
-        print('aaaaa')
+class B(type):
+    def __new__(cls, *args, **kwargs):
+        print('wdawdad')
 
-class B(A):
-    def a(self):
-        print('bbbbbbbb')
-        super(B, self).a()
 
-B().a()
+class A(metaclass=B):
+    pass
+
+a = A()

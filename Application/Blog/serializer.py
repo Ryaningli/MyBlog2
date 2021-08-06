@@ -1,9 +1,10 @@
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework import filters
-from Application.Blog.models import Blog, Comment
+from rest_framework.exceptions import NotFound
+from Application.Blog.models import Blog, Comment, Like
 from Application.User.models import User
-from Application.utils.custom_serializer import ModelSerializer
+from Application.utils.custom_serializer import ModelSerializer, Serializer
 
 
 class UserInfoSerializer(ModelSerializer):
@@ -24,6 +25,9 @@ class BlogsSerializer(ModelSerializer):
     content = serializers.CharField(required=True, label='内容')
     type = serializers.IntegerField(required=True, label='文章类型')
     user = UserInfoSerializer(read_only=True)
+    comment_count = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    is_like = serializers.SerializerMethodField()
 
     class Meta:
         model = Blog
@@ -47,21 +51,46 @@ class BlogsSerializer(ModelSerializer):
         instance.save()
         return instance
 
+    @staticmethod
+    def get_comment_count(obj):
+        return len(Comment.objects.filter(blog_id=obj.id))
+
+    @staticmethod
+    def get_like_count(obj):
+        return len(Like.objects.filter(object_id=obj.id, type=1))
+
+    def get_is_like(self, obj):
+        if Like.objects.filter(user_id=self.context['request'].user.id, object_id=obj.id, type=1):
+            return True
+        else:
+            return False
+
 
 class BlogsListSerializer(ModelSerializer):
     """
     日志列表序列化类
     """
     user = UserInfoSerializer(read_only=True)
+    comment_count = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Blog
         exclude = ['content']
 
+    @staticmethod
+    def get_comment_count(obj):
+        return len(Comment.objects.filter(blog_id=obj.id))
+
+    @staticmethod
+    def get_like_count(obj):
+        return len(Like.objects.filter(object_id=obj.id, type=1))
+
 
 class CommentSerializer(ModelSerializer):
     """
     评论序列化类
+    增、删
     """
     object_id = serializers.IntegerField(required=True, label='评论对象id', write_only=True)
     level = serializers.IntegerField(required=True, label='评论等级')
@@ -112,6 +141,8 @@ class CommentListSerializer(ModelSerializer):
     """
     user = UserInfoSerializer(read_only=True)
     content = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    is_like = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -126,6 +157,16 @@ class CommentListSerializer(ModelSerializer):
             obj.content = None
         return obj.content
 
+    @staticmethod
+    def get_like_count(obj):
+        return len(Like.objects.filter(object_id=obj.id, type=2))
+
+    def get_is_like(self, obj):
+        if Like.objects.filter(user_id=self.context['request'].user.id, object_id=obj.id, type=2):
+            return True
+        else:
+            return False
+
 
 class StandardCommentListSerializer(ModelSerializer):
     """
@@ -135,7 +176,8 @@ class StandardCommentListSerializer(ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ('content', )
 
     @staticmethod
     def comment_data_handler(data):
@@ -178,6 +220,41 @@ class StandardCommentListSerializer(ModelSerializer):
     def get_comments(self, obj):
         queryset = Comment.objects.filter(blog_id=obj.id)
         queryset = filters.OrderingFilter().filter_queryset(self.context['request'], queryset, self.context['view'])
-        data = CommentListSerializer(queryset, many=True).data
+        data = CommentListSerializer(queryset, many=True, context={'request': self.context['request']}).data
         result = self.comment_data_handler(data)
         return result
+
+
+class LikeSerializer(Serializer):
+    """
+    点赞接口序列化类
+    """
+    id = serializers.IntegerField(label='点赞对象主键', required=True)
+    type = serializers.ChoiceField(label='点赞对象类型', choices=((1, 'blog'), (2, 'comment')), required=True)
+
+    def validate(self, attrs):
+        type_ = attrs.get('type')
+        if type_ == 1:
+            validate_model = Blog
+        else:
+            validate_model = Comment
+        if not validate_model.objects.filter(id=attrs.get('id')):
+            raise NotFound('未找到')
+        return attrs
+
+    def create(self, validated_data):
+        id_ = validated_data['id']
+        type_ = validated_data['type']
+        user = self.context['request'].user
+
+        likes = Like.objects.filter(user_id=user.id, object_id=id_, type=type_)
+        if likes:
+            likes[0].delete()
+            is_like = False
+        else:
+            Like.objects.create(user_id=user.id, object_id=id_, type=type_, created_time=timezone.now())
+            is_like = True
+        return {
+            'count': len(Like.objects.filter(object_id=id_, type=type_)),
+            'is_like': is_like
+        }

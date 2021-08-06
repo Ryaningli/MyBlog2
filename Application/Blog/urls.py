@@ -1,7 +1,9 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 from Application.Blog import views
 
 urlpatterns = [
+    path('like/', views.Likes.as_view())
 ]
 
 router = DefaultRouter()

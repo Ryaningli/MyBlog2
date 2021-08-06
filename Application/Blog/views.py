@@ -2,11 +2,12 @@ from rest_framework import filters, mixins
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from Application.Blog.filters import BlogsFilter, CommentFilter
 from Application.Blog.models import Blog, Comment
 from Application.Blog.serializer import BlogsSerializer, BlogsListSerializer, CommentSerializer, \
-    StandardCommentListSerializer
+    StandardCommentListSerializer, LikeSerializer
 from Application.utils import custom_mixins
 from Application.utils.custom_permissions import IsOwner
 
@@ -69,3 +70,14 @@ class Comments(mixins.CreateModelMixin,
             raise NotFound('未找到')
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+
+class Likes(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def post(self, request):
+        self.request.data['user_id'] = self.request.user.id
+        serializer = LikeSerializer(data=self.request.data, context={'request': self.request})
+        serializer.is_valid()
+
+        return Response(data=serializer.create(serializer.validated_data))
